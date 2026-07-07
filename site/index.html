@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mnemosyne — the memory layer between AI models and your organization</title>
+<meta name="description" content="Mnemosyne is an ontology-native memory fabric for AI assistants: canonical entities, temporal facts, and per-fact provenance behind an open MCP server. Model-agnostic. Local-first private data. Hosted shared ontology.">
+<style>
+  :root {
+    --ink: #0e1116;
+    --ink-2: #151a21;
+    --ink-3: #1c232c;
+    --paper: #faf9f6;
+    --text: #1a1e24;
+    --text-2: #4c5560;
+    --text-3: #77808c;
+    --line: rgba(26, 30, 36, 0.14);
+    --line-soft: rgba(26, 30, 36, 0.08);
+    --canonical: #147d8f;
+    --canonical-soft: rgba(20, 125, 143, 0.10);
+    --overlay: #a86a24;
+    --overlay-soft: rgba(168, 106, 36, 0.10);
+    --card: #ffffff;
+    --term-bg: #0e1116;
+    --term-text: #d7dce2;
+    --term-dim: #6b7684;
+    --term-canonical: #5fc4d4;
+    --term-overlay: #e0a458;
+    --btn-bg: #1a1e24;
+    --btn-text: #faf9f6;
+    --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0e1116;
+      --text: #e8e6e1;
+      --text-2: #a7aeb8;
+      --text-3: #77808c;
+      --line: rgba(232, 230, 225, 0.16);
+      --line-soft: rgba(232, 230, 225, 0.08);
+      --canonical: #5fc4d4;
+      --canonical-soft: rgba(95, 196, 212, 0.09);
+      --overlay: #e0a458;
+      --overlay-soft: rgba(224, 164, 88, 0.09);
+      --card: #151a21;
+      --term-bg: #090b0f;
+      --btn-bg: #e8e6e1;
+      --btn-text: #0e1116;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #faf9f6;
+    --text: #1a1e24;
+    --text-2: #4c5560;
+    --text-3: #77808c;
+    --line: rgba(26, 30, 36, 0.14);
+    --line-soft: rgba(26, 30, 36, 0.08);
+    --canonical: #147d8f;
+    --canonical-soft: rgba(20, 125, 143, 0.10);
+    --overlay: #a86a24;
+    --overlay-soft: rgba(168, 106, 36, 0.10);
+    --card: #ffffff;
+    --term-bg: #0e1116;
+    --btn-bg: #1a1e24;
+    --btn-text: #faf9f6;
+  }
+  :root[data-theme="dark"] {
+    --paper: #0e1116;
+    --text: #e8e6e1;
+    --text-2: #a7aeb8;
+    --text-3: #77808c;
+    --line: rgba(232, 230, 225, 0.16);
+    --line-soft: rgba(232, 230, 225, 0.08);
+    --canonical: #5fc4d4;
+    --canonical-soft: rgba(95, 196, 212, 0.09);
+    --overlay: #e0a458;
+    --overlay-soft: rgba(224, 164, 88, 0.09);
+    --card: #151a21;
+    --term-bg: #090b0f;
+    --btn-bg: #e8e6e1;
+    --btn-text: #0e1116;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--paper);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16.5px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--canonical); outline-offset: 3px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- nav ---------- */
+  header.nav {
+    border-bottom: 1px solid var(--line-soft);
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 28px; height: 64px; }
+  .wordmark {
+    font-family: var(--display);
+    font-size: 21px; letter-spacing: 0.06em;
+    text-decoration: none; font-weight: 600;
+  }
+  .wordmark span { color: var(--canonical); }
+  .nav-links { display: flex; gap: 24px; margin-left: auto; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 14.5px; color: var(--text-2); }
+  .nav-links a:hover { color: var(--text); }
+  .btn {
+    display: inline-block; padding: 10px 20px; border-radius: 4px;
+    background: var(--btn-bg); color: var(--btn-text);
+    text-decoration: none; font-size: 14.5px; font-weight: 600;
+    border: 1px solid var(--btn-bg);
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--text-3); opacity: 1; }
+
+  /* ---------- hero ---------- */
+  .hero { padding-top: 88px; padding-bottom: 72px; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--canonical); margin-bottom: 20px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 600;
+    font-size: clamp(34px, 4.6vw, 52px); line-height: 1.12;
+    letter-spacing: -0.01em; text-wrap: balance; margin-bottom: 22px;
+  }
+  .hero p.lede { font-size: 18.5px; color: var(--text-2); max-width: 34em; margin-bottom: 32px; }
+  .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  /* terminal */
+  .term {
+    background: var(--term-bg); border-radius: 8px;
+    border: 1px solid rgba(232,230,225,0.12);
+    box-shadow: 0 24px 60px -24px rgba(0,0,0,0.5);
+    overflow: hidden; font-family: var(--mono); font-size: 13px; line-height: 1.75;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-bottom: 1px solid rgba(232,230,225,0.08);
+  }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #3a4350; display: inline-block; }
+  .term-bar .t { margin-left: 8px; color: var(--term-dim); font-size: 11.5px; letter-spacing: 0.08em; }
+  .term-body { padding: 18px 20px 22px; color: var(--term-text); overflow-x: auto; }
+  .term-body .ln { white-space: pre; display: block; min-height: 1.75em; }
+  .term-body .p  { color: var(--term-dim); }
+  .term-body .c  { color: var(--term-canonical); }
+  .term-body .o  { color: var(--term-overlay); }
+  .term-body .dim{ color: var(--term-dim); }
+
+  /* ---------- proof strip ---------- */
+  .proof { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+  .proof-inner {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding-top: 26px; padding-bottom: 26px; gap: 24px;
+  }
+  .proof-item { text-align: left; }
+  .proof-item b {
+    display: block; font-family: var(--display); font-size: 26px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .proof-item span { font-size: 13px; color: var(--text-3); }
+
+  /* ---------- sections ---------- */
+  section { padding: 84px 0 0; }
+  .sec-head { max-width: 640px; margin-bottom: 44px; }
+  .sec-head .eyebrow.tier-overlay { color: var(--overlay); }
+  h2 {
+    font-family: var(--display); font-weight: 600;
+    font-size: clamp(26px, 3.2vw, 36px); line-height: 1.2;
+    letter-spacing: -0.005em; text-wrap: balance; margin-bottom: 14px;
+  }
+  .sec-head p { color: var(--text-2); font-size: 17px; }
+
+  .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .cols-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line-soft);
+    border-radius: 8px; padding: 26px 24px;
+  }
+  .card h3 { font-size: 16.5px; font-weight: 650; margin-bottom: 8px; }
+  .card p { font-size: 14.8px; color: var(--text-2); }
+  .card .k {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 14px; display: inline-block;
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .k.canonical { color: var(--canonical); background: var(--canonical-soft); }
+  .k.overlay   { color: var(--overlay);   background: var(--overlay-soft); }
+
+  /* ---------- architecture ---------- */
+  .arch { border: 1px solid var(--line-soft); border-radius: 10px; background: var(--card); padding: 34px; overflow-x: auto; }
+  .arch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-width: 620px; }
+  .arch-node {
+    border-radius: 8px; padding: 20px 22px; border: 1px solid var(--line);
+  }
+  .arch-node.canonical { border-color: color-mix(in srgb, var(--canonical) 55%, transparent); background: var(--canonical-soft); }
+  .arch-node.overlay   { border-color: color-mix(in srgb, var(--overlay) 55%, transparent);   background: var(--overlay-soft); }
+  .arch-node h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .arch-node .sub { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .arch-node.canonical .sub { color: var(--canonical); }
+  .arch-node.overlay .sub   { color: var(--overlay); }
+  .arch-node p { font-size: 14px; color: var(--text-2); }
+  .arch-mid {
+    text-align: center; margin: 18px 0; min-width: 620px;
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.1em;
+    color: var(--text-3); text-transform: uppercase;
+  }
+  .arch-top {
+    border: 1px dashed var(--line); border-radius: 8px; padding: 16px 22px;
+    text-align: center; font-size: 14.5px; color: var(--text-2); margin-bottom: 18px; min-width: 620px;
+  }
+  .arch-top b { color: var(--text); }
+  .arch-notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 26px; }
+  .arch-notes div { font-size: 14px; color: var(--text-2); border-top: 2px solid var(--line); padding-top: 12px; }
+  .arch-notes b { color: var(--text); display: block; margin-bottom: 4px; font-size: 14.5px; }
+
+  /* ---------- enterprise ---------- */
+  .ent-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 48px; }
+  .ent-item { display: flex; gap: 16px; padding: 22px 0; border-top: 1px solid var(--line-soft); }
+  .ent-item .tick {
+    flex: none; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--canonical-soft); color: var(--canonical);
+    display: grid; place-items: center; font-size: 12px; margin-top: 3px;
+  }
+  .ent-item h3 { font-size: 15.5px; font-weight: 650; margin-bottom: 4px; }
+  .ent-item p { font-size: 14.3px; color: var(--text-2); }
+
+  /* ---------- interop ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .chip {
+    font-family: var(--mono); font-size: 13px; padding: 8px 16px;
+    border: 1px solid var(--line); border-radius: 999px; color: var(--text-2);
+  }
+  pre.code {
+    background: var(--term-bg); color: var(--term-text);
+    font-family: var(--mono); font-size: 13px; line-height: 1.7;
+    border-radius: 8px; padding: 20px 22px; overflow-x: auto;
+    border: 1px solid rgba(232,230,225,0.1);
+  }
+  pre.code .c { color: var(--term-canonical); }
+  pre.code .dim { color: var(--term-dim); }
+
+  /* ---------- cta ---------- */
+  .cta-final {
+    margin: 96px 0 0; border-top: 1px solid var(--line-soft);
+    padding-top: 84px; padding-bottom: 90px; text-align: center;
+  }
+  .cta-final h2 { margin-bottom: 12px; }
+  .cta-final p { color: var(--text-2); max-width: 36em; margin: 0 auto 30px; }
+  .cta-final .hero-ctas { justify-content: center; }
+
+  footer {
+    border-top: 1px solid var(--line-soft); padding: 26px 0 40px;
+    font-size: 13px; color: var(--text-3);
+    display: flex; gap: 18px; flex-wrap: wrap;
+  }
+  footer a { color: var(--text-3); }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .proof-inner { grid-template-columns: repeat(2, 1fr); }
+    .cols-3 { grid-template-columns: 1fr; }
+    .cols-2 { grid-template-columns: 1fr; }
+    .ent-list { grid-template-columns: 1fr; }
+    .arch-notes { grid-template-columns: 1fr; }
+    .nav-links a.nl { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="wordmark" href="#">MNEMOSYNE<span>.</span></a>
+    <nav class="nav-links">
+      <a class="nl" href="#architecture">Architecture</a>
+      <a class="nl" href="#enterprise">Security</a>
+      <a class="nl" href="#interop">Integrations</a>
+      <a class="nl" href="https://github.com/jerednel/mnemosyne">GitHub</a>
+      <a class="btn" href="mailto:jnelson563@outlook.com?subject=Mnemosyne%20demo">Request a demo</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Ontology-native memory fabric</div>
+        <h1>The memory layer between AI models and your organization.</h1>
+        <p class="lede">
+          Assistants come and go. Mnemosyne makes what they learn permanent: a semantic
+          graph of canonical entities, temporal facts, and per-fact provenance that any
+          AI assistant can read and write — with private data that never leaves your machines.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn" href="mailto:jnelson563@outlook.com?subject=Mnemosyne%20demo">Request a demo</a>
+          <a class="btn ghost" href="https://github.com/jerednel/mnemosyne">View the source</a>
+        </div>
+      </div>
+      <div class="term" aria-label="Terminal demonstration of Mnemosyne resolving entities and answering a temporal query">
+        <div class="term-bar"><i></i><i></i><i></i><span class="t">mnemosyne · live fabric</span></div>
+        <div class="term-body" id="term-out">
+<span class="ln"><span class="p">▸</span> resolve <span class="o">"DBX"</span></span>
+<span class="ln">  <span class="c">canon:company/databricks</span> <span class="dim">· alias · 100</span></span>
+<span class="ln"><span class="p">▸</span> resolve <span class="o">"the lakehouse vendor"</span></span>
+<span class="ln">  <span class="c">canon:company/databricks</span> <span class="dim">· alias · 100</span></span>
+<span class="ln"><span class="p">▸</span> resolve <span class="o">"Databrics"</span></span>
+<span class="ln">  <span class="c">canon:company/databricks</span> <span class="dim">· fuzzy · 95 · alias learned</span></span>
+<span class="ln"><span class="p">▸</span> works_at <span class="o">Jeremy</span> → Anthropic <span class="dim">valid_from 2025-06</span></span>
+<span class="ln">  <span class="dim">superseded 1 prior fact — history preserved</span></span>
+<span class="ln"><span class="p">▸</span> employer <span class="dim">as of 2024-07</span></span>
+<span class="ln">  Databricks <span class="dim">· provenance claude-code/2.0</span></span>
+<span class="ln"><span class="p">▸</span> employer <span class="dim">today</span></span>
+<span class="ln">  Anthropic <span class="dim">· provenance cursor/1.5</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proof">
+    <div class="wrap proof-inner">
+      <div class="proof-item"><b>Model-agnostic</b><span>One fabric across Claude, IDE agents, and local models via MCP</span></div>
+      <div class="proof-item"><b>4,800 entities</b><span>Wikidata-backed canonical ontology — "MSFT", "K8s", even the typo "sqllite" resolve</span></div>
+      <div class="proof-item"><b>Two tiers</b><span>Hosted shared ontology · local-first private overlay</span></div>
+      <div class="proof-item"><b>MIT licensed</b><span>Open source · 74 automated tests incl. live HTTP and cross-assistant e2e</span></div>
+    </div>
+  </div>
+
+  <section id="problem">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">The problem</div>
+        <h2>Every assistant is brilliant. None of them remember.</h2>
+        <p>Today's AI memory is vector search over chat logs — text fragments with no identity, no relationships, and no sense of time. The cost compounds across every assistant your team runs.</p>
+      </div>
+      <div class="cols-3">
+        <div class="card">
+          <h3>Context fragmentation</h3>
+          <p>The same people, systems, and projects get re-explained to every assistant, in every tool, in every session. Knowledge is paid for repeatedly and owned by no one.</p>
+        </div>
+        <div class="card">
+          <h3>No shared cognition</h3>
+          <p>Each vendor keeps its own memory silo. What your coding agent learned this morning is invisible to your research assistant this afternoon — and lost entirely when you switch models.</p>
+        </div>
+        <div class="card">
+          <h3>No sense of time</h3>
+          <p>Retrieval systems overwrite state instead of modeling it. "Who was the account owner in Q2?" is unanswerable when yesterday's truth was deleted to store today's.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="architecture">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Architecture</div>
+        <h2>Two tiers, one graph. The privacy boundary is structural.</h2>
+        <p>Shared knowledge and private context are physically separate stores, merged at query time. Private data reaching the shared tier isn't forbidden by policy — it's impossible by construction.</p>
+      </div>
+      <div class="arch">
+        <div class="arch-top"><b>Any MCP client</b> — Claude Code, Claude Desktop, Cursor, VS Code, custom agents<br><span style="font-family: var(--mono); font-size: 12.5px;">remember · recall · resolve_entity · assert_relationship · query_graph · timeline</span></div>
+        <div class="arch-mid">↓ &nbsp; MemoryFabric — merge &amp; identity resolution layer &nbsp; ↓</div>
+        <div class="arch-row">
+          <div class="arch-node canonical">
+            <div class="sub">Tier 1 · Canonical</div>
+            <h4>Hosted shared ontology</h4>
+            <p>Canonical entities, aliases, and relationships served over authenticated HTTP with per-tenant keys. Opened read-only at runtime — no write path exists.</p>
+          </div>
+          <div class="arch-node overlay">
+            <div class="sub">Tier 2 · Overlay</div>
+            <h4>Private, local-first memory</h4>
+            <p>Your entities, relationships, memories, and learned aliases. Extends and shadows the shared graph. Never transmitted, never synced without consent.</p>
+          </div>
+        </div>
+        <div class="arch-notes">
+          <div><b>Provable isolation</b>An automated test asserts the shared-tier database is byte-identical after a full private write workload.</div>
+          <div><b>Swappable backends</b>The canonical tier sits behind a storage protocol — SQLite today, multi-tenant Postgres tomorrow, nothing above changes.</div>
+          <div><b>Append-only history</b>Every write lands in an immutable assertion log in the same transaction. State and audit trail cannot drift.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="capabilities">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow tier-overlay">Capabilities</div>
+        <h2>Structure-first memory, not retrieval-first.</h2>
+      </div>
+      <div class="cols-3">
+        <div class="card">
+          <span class="k canonical">Identity</span>
+          <h3>Resolution that learns</h3>
+          <p>"DBX", "the lakehouse vendor", and "Databrics" all resolve to one canonical entity. High-confidence matches are learned as aliases; ambiguous ones become reviewable proposals — never silent links.</p>
+        </div>
+        <div class="card">
+          <span class="k canonical">Time</span>
+          <h3>Facts supersede, never overwrite</h3>
+          <p>Every fact carries a validity window. New truths close old ones and link the succession, so "what was true in July?" is a query, not an apology.</p>
+        </div>
+        <div class="card">
+          <span class="k canonical">Trust</span>
+          <h3>Per-fact provenance</h3>
+          <p>Which assistant asserted it, in which session, at what confidence — captured from the protocol handshake, never self-reported. Seed data, assistant claims, and inference stay permanently distinguishable.</p>
+        </div>
+        <div class="card">
+          <span class="k overlay">Privacy</span>
+          <h3>Private overlays on shared entities</h3>
+          <p>Attach your notes, nicknames, and attributes to a canonical entity without duplicating or publishing it. The merged view exists only on your side of the boundary.</p>
+        </div>
+        <div class="card">
+          <span class="k overlay">Reasoning</span>
+          <h3>Graph queries, not text search</h3>
+          <p>Typed, ontology-validated relationships with direction, depth, and as-of time travel. Assistants query meaning and structure — vector recall is the fallback, not the foundation.</p>
+        </div>
+        <div class="card">
+          <span class="k overlay">Extensible</span>
+          <h3>Pluggable semantic matching</h3>
+          <p>Layer embedding similarity over lexical matching with one environment variable. Paraphrases resolve where string distance can't reach — no SDK lock-in, no default overhead.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="enterprise">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Enterprise readiness</div>
+        <h2>Built for the questions your security review will ask.</h2>
+      </div>
+      <div class="ent-list">
+        <div class="ent-item"><span class="tick">✓</span><div>
+          <h3>Structural data isolation</h3>
+          <p>The shared tier is opened read-only at the storage layer. There is no code path from private memory to shared storage — verified by byte-identity tests.</p>
+        </div></div>
+        <div class="ent-item"><span class="tick">✓</span><div>
+          <h3>Authenticated multi-tenant access</h3>
+          <p>Bearer-token auth with per-key identity on every hosted-tier request. Fail-closed startup; every response is attributed for audit and future quotas.</p>
+        </div></div>
+        <div class="ent-item"><span class="tick">✓</span><div>
+          <h3>Complete audit trail</h3>
+          <p>An append-only assertion log records every fact, supersession, and merge decision with actor and timestamp — written atomically with the state it describes.</p>
+        </div></div>
+        <div class="ent-item"><span class="tick">✓</span><div>
+          <h3>No model or vendor lock-in</h3>
+          <p>The only interface is the open Model Context Protocol. Swap models and assistants freely; the memory graph is the durable asset and it belongs to you.</p>
+        </div></div>
+        <div class="ent-item"><span class="tick">✓</span><div>
+          <h3>Open source, permissive stack</h3>
+          <p>MIT licensed with three lightweight permissive dependencies. Auditable end to end; no copyleft exposure, no proprietary runtime.</p>
+        </div></div>
+        <div class="ent-item"><span class="tick">✓</span><div>
+          <h3>Memory pollution as a design constraint</h3>
+          <p>Ambiguous identity matches are proposed, not committed. Confidence scores, human review hooks, and provenance keep hallucinated facts out of the graph.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="interop">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow tier-overlay">Interoperability</div>
+        <h2>One fabric. Every assistant your team already uses.</h2>
+        <p>Cross-assistant continuity isn't a claim — it's a passing test. Assistant B recalls what assistant A learned, sees exactly who asserted it, and evolves the shared record.</p>
+      </div>
+      <div class="chips">
+        <span class="chip">Claude Code</span>
+        <span class="chip">Claude Desktop</span>
+        <span class="chip">Cursor</span>
+        <span class="chip">VS Code</span>
+        <span class="chip">Any MCP client</span>
+      </div>
+      <pre class="code"><span class="dim"># Wire it into Claude Code — one command</span>
+claude mcp add mnemosyne -- uv run --directory /path/to/mnemosyne mnemosyne-server
+
+<span class="dim"># Host the shared ontology for your whole org</span>
+MNEMOSYNE_API_KEYS=<span class="c">"team:mk_·····"</span> uv run mnemosyne-canonical
+<span class="dim"># Point every client at it with two environment variables — this instance is live:</span>
+MNEMOSYNE_CANONICAL_URL=<span class="c">https://mnemosyne-production-ed7b.up.railway.app</span> mnemosyne-server</pre>
+    </div>
+  </section>
+
+  <div class="wrap cta-final" id="contact">
+    <div class="eyebrow">Get started</div>
+    <h2>The models will keep changing.<br>Your memory shouldn't.</h2>
+    <p>See the fabric resolve, remember, and time-travel in a 15-minute technical walkthrough — or run the open-source demo yourself in under a minute.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="mailto:jnelson563@outlook.com?subject=Mnemosyne%20demo">Request a demo</a>
+      <a class="btn ghost" href="https://github.com/jerednel/mnemosyne">Run it from source</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex; gap:18px; flex-wrap:wrap;">
+    <span>© 2026 Mnemosyne · Jeremy Nelson</span>
+    <a href="https://github.com/jerednel/mnemosyne">GitHub</a>
+    <a href="https://github.com/jerednel/mnemosyne/blob/main/docs/integrations.md">Integration docs</a>
+    <a href="mailto:jnelson563@outlook.com">Contact</a>
+  </div>
+</footer>
+
+<script>
+  // Replay the terminal transcript line-by-line on load; show it instantly
+  // for reduced-motion users.
+  (function () {
+    var out = document.getElementById("term-out");
+    if (!out) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var lines = Array.prototype.slice.call(out.querySelectorAll(".ln"));
+    lines.forEach(function (ln) { ln.style.visibility = "hidden"; });
+    lines.forEach(function (ln, i) {
+      setTimeout(function () { ln.style.visibility = "visible"; }, 350 + i * 330);
+    });
+  })();
+</script>
+
+</body>
+</html>

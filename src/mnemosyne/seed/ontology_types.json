@@ -1,0 +1,32 @@
+{
+  "entity_types": [
+    { "name": "person", "parent": null, "description": "A human individual." },
+    { "name": "organization", "parent": null, "description": "Any organized group: company, nonprofit, team, institution." },
+    { "name": "company", "parent": "organization", "description": "A commercial organization." },
+    { "name": "technology", "parent": null, "description": "A technology, framework, language, protocol, or platform." },
+    { "name": "product", "parent": null, "description": "A named product or service offered by an organization." },
+    { "name": "project", "parent": null, "description": "A bounded initiative or body of work." },
+    { "name": "concept", "parent": null, "description": "An abstract idea, methodology, or domain concept." },
+    { "name": "location", "parent": null, "description": "A geographic place." },
+    { "name": "event", "parent": null, "description": "Something that happened or will happen at a point/range in time." },
+    { "name": "document", "parent": null, "description": "A document, article, spec, or other written artifact." }
+  ],
+  "relationship_types": [
+    { "name": "works_at", "description": "Employment or primary affiliation.", "source_types": ["person"], "target_types": ["organization"], "inverse_name": "employs", "functional": true },
+    { "name": "founded", "description": "Source founded the target organization.", "source_types": ["person", "organization"], "target_types": ["organization"], "inverse_name": "founded_by", "functional": false },
+    { "name": "owns", "description": "Ownership of an asset, product, or organization.", "source_types": ["person", "organization"], "target_types": ["*"], "inverse_name": "owned_by", "functional": false },
+    { "name": "develops", "description": "Organization builds/maintains the product or technology.", "source_types": ["organization"], "target_types": ["product", "technology"], "inverse_name": "developed_by", "functional": false },
+    { "name": "depends_on", "description": "Technical or operational dependency.", "source_types": ["technology", "project", "product"], "target_types": ["technology", "product"], "inverse_name": "required_by", "functional": false },
+    { "name": "uses", "description": "Source actively uses the target.", "source_types": ["*"], "target_types": ["technology", "product", "concept"], "inverse_name": "used_by", "functional": false },
+    { "name": "partner_of", "description": "Business or collaboration partnership (symmetric).", "source_types": ["organization"], "target_types": ["organization"], "inverse_name": "partner_of", "functional": false },
+    { "name": "competitor_of", "description": "Competitive relationship (symmetric).", "source_types": ["organization", "product"], "target_types": ["organization", "product"], "inverse_name": "competitor_of", "functional": false },
+    { "name": "part_of", "description": "Compositional membership.", "source_types": ["*"], "target_types": ["*"], "inverse_name": "contains", "functional": false },
+    { "name": "located_in", "description": "Physical or organizational location.", "source_types": ["*"], "target_types": ["location"], "inverse_name": "location_of", "functional": false },
+    { "name": "created_by", "description": "Artifact created by a person or organization.", "source_types": ["*"], "target_types": ["person", "organization"], "inverse_name": "created", "functional": false },
+    { "name": "invested_in", "description": "Financial investment.", "source_types": ["person", "organization"], "target_types": ["organization", "project"], "inverse_name": "investor", "functional": false },
+    { "name": "mentioned_in", "description": "Entity referenced in a document or event.", "source_types": ["*"], "target_types": ["document", "event"], "inverse_name": "mentions", "functional": false },
+    { "name": "prefers", "description": "Stated preference of a person.", "source_types": ["person"], "target_types": ["*"], "inverse_name": "preferred_by", "functional": false },
+    { "name": "knows", "description": "Personal or professional acquaintance.", "source_types": ["person"], "target_types": ["person"], "inverse_name": "knows", "functional": false },
+    { "name": "interested_in", "description": "Topic or entity the source is tracking or curious about.", "source_types": ["person", "organization"], "target_types": ["*"], "inverse_name": "interests", "functional": false }
+  ]
+}

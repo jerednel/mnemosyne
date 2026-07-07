@@ -1,0 +1,123 @@
+{
+  "entities": [
+    {
+      "id": "canon:company/databricks",
+      "entity_type": "company",
+      "name": "Databricks",
+      "summary": "Data and AI company known for the lakehouse architecture, Apache Spark, and Unity Catalog.",
+      "attributes": { "hq": "San Francisco, CA", "founded": 2013 },
+      "aliases": [
+        { "alias": "DBX", "alias_type": "abbreviation" },
+        { "alias": "the lakehouse vendor", "alias_type": "description" },
+        { "alias": "Unity Catalog people", "alias_type": "description" }
+      ]
+    },
+    {
+      "id": "canon:company/anthropic",
+      "entity_type": "company",
+      "name": "Anthropic",
+      "summary": "AI safety company that develops the Claude family of models.",
+      "attributes": { "hq": "San Francisco, CA", "founded": 2021 },
+      "aliases": [
+        { "alias": "the Claude maker", "alias_type": "description" }
+      ]
+    },
+    {
+      "id": "canon:product/claude",
+      "entity_type": "product",
+      "name": "Claude",
+      "summary": "Family of large language models and assistants developed by Anthropic.",
+      "attributes": {},
+      "aliases": []
+    },
+    {
+      "id": "canon:company/snowflake",
+      "entity_type": "company",
+      "name": "Snowflake",
+      "summary": "Cloud data warehousing company.",
+      "attributes": { "hq": "Bozeman, MT" },
+      "aliases": []
+    },
+    {
+      "id": "canon:company/openai",
+      "entity_type": "company",
+      "name": "OpenAI",
+      "summary": "AI research and product company; develops GPT models and ChatGPT.",
+      "attributes": {},
+      "aliases": [
+        { "alias": "the ChatGPT company", "alias_type": "description" }
+      ]
+    },
+    {
+      "id": "canon:technology/apache-spark",
+      "entity_type": "technology",
+      "name": "Apache Spark",
+      "summary": "Distributed data processing engine.",
+      "attributes": {},
+      "aliases": [
+        { "alias": "Spark", "alias_type": "name" },
+        { "alias": "PySpark", "alias_type": "name" }
+      ]
+    },
+    {
+      "id": "canon:technology/python",
+      "entity_type": "technology",
+      "name": "Python",
+      "summary": "General-purpose programming language dominant in data and AI work.",
+      "attributes": {},
+      "aliases": []
+    },
+    {
+      "id": "canon:technology/postgresql",
+      "entity_type": "technology",
+      "name": "PostgreSQL",
+      "summary": "Open-source relational database.",
+      "attributes": {},
+      "aliases": [
+        { "alias": "Postgres", "alias_type": "name" }
+      ]
+    },
+    {
+      "id": "canon:technology/mcp",
+      "entity_type": "technology",
+      "name": "MCP",
+      "summary": "Open protocol for connecting AI assistants to tools and data sources.",
+      "attributes": {},
+      "aliases": [
+        { "alias": "Model Context Protocol", "alias_type": "name" }
+      ]
+    },
+    {
+      "id": "canon:concept/lakehouse",
+      "entity_type": "concept",
+      "name": "Lakehouse",
+      "summary": "Data architecture combining data lake storage with warehouse management features.",
+      "attributes": {},
+      "aliases": [
+        { "alias": "lakehouse architecture", "alias_type": "name" }
+      ]
+    },
+    {
+      "id": "canon:technology/unity-catalog",
+      "entity_type": "technology",
+      "name": "Unity Catalog",
+      "summary": "Databricks governance layer for data and AI assets.",
+      "attributes": {},
+      "aliases": [
+        { "alias": "UC", "alias_type": "abbreviation" }
+      ]
+    }
+  ],
+  "relationships": [
+    { "source": "canon:company/anthropic", "target": "canon:product/claude", "rel_type": "develops" },
+    { "source": "canon:company/databricks", "target": "canon:technology/apache-spark", "rel_type": "develops" },
+    { "source": "canon:company/databricks", "target": "canon:technology/unity-catalog", "rel_type": "develops" },
+    { "source": "canon:company/snowflake", "target": "canon:company/databricks", "rel_type": "competitor_of" },
+    { "source": "canon:company/openai", "target": "canon:company/anthropic", "rel_type": "competitor_of" },
+    { "source": "canon:concept/lakehouse", "target": "canon:company/databricks", "rel_type": "created_by" },
+    { "source": "canon:technology/apache-spark", "target": "canon:technology/python", "rel_type": "uses" },
+    { "source": "canon:technology/unity-catalog", "target": "canon:concept/lakehouse", "rel_type": "part_of" },
+    { "source": "canon:product/claude", "target": "canon:technology/mcp", "rel_type": "uses" },
+    { "source": "canon:company/anthropic", "target": "canon:technology/mcp", "rel_type": "develops" }
+  ]
+}
