@@ -1,11 +1,31 @@
 [project]
-name = "mnemosyne"
+name = "mnemosyne-fabric"
 version = "0.1.0"
 description = "Ontology-native memory fabric for AI assistants: canonical entities, typed relationships, temporal state, and provenance behind an MCP server."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Jeremy Nelson" }]
+keywords = [
+    "mcp",
+    "memory",
+    "ontology",
+    "knowledge-graph",
+    "ai-assistant",
+    "provenance",
+    "temporal",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Database",
+    "Typing :: Typed",
+]
 dependencies = [
     "mcp>=1.2.0",
     "pydantic>=2.7",
@@ -14,6 +34,12 @@ dependencies = [
     "starlette>=0.40",
     "uvicorn>=0.30",
 ]
+
+[project.urls]
+Homepage = "https://github.com/jerednel/mnemosyne"
+Repository = "https://github.com/jerednel/mnemosyne"
+Documentation = "https://github.com/jerednel/mnemosyne/blob/main/docs/integrations.md"
+Issues = "https://github.com/jerednel/mnemosyne/issues"
 
 [project.optional-dependencies]
 embeddings-local = ["fastembed>=0.3"]
