@@ -166,6 +166,24 @@ taxonomies need no code changes.
 - **Inference & decay** — derived facts (`source_type=inference` is already modeled)
   and read-time relevance scoring
 
+## Deploying on Railway
+
+The production instance runs at
+https://mnemosyne-production-ed7b.up.railway.app. To reconnect the Railway
+service to this repo (one-time, after the repo split from `jerednel/jerednel`):
+
+1. Open the Railway dashboard → project "mnemosyne" → service settings.
+2. Under **Source**, disconnect the old repo (`jerednel/jerednel`).
+3. Connect the new repo (`jerednel/mnemosyne`), branch `main`.
+4. Remove the **Root Directory** override (previously `mnemosyne`) — the
+   Dockerfile is now at the repo root.
+5. Verify existing environment variables are intact: `MNEMOSYNE_API_KEYS`,
+   `MNEMOSYNE_SITE_DIR=/app/site`.
+6. Trigger a manual deploy or push to `main` — Railway will build from
+   `Dockerfile` at the root and health-check at `/v1/health`.
+
+`railway.json` is already configured; no file changes are needed.
+
 ## License
 
 MIT
